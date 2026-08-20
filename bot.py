@@ -29,8 +29,30 @@ async def post_init(application: Application) -> None:
     logger.info("Database muvaffaqiyatli ishga tushdi.")
 
 
+import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK - Bot is running")
+    def log_message(self, format, *args):
+        return  # Suppress logs for healthchecks
+
+def start_health_server():
+    port = int(os.getenv('PORT', 8080))
+    server = HTTPServer(('0.0.0.0', port), HealthCheckHandler)
+    server.serve_forever()
+
 def main():
     """Start the Telegram mentor bot."""
+    # Start web healthcheck server if PORT is set (for Render Free Web Service)
+    if os.getenv('PORT'):
+        threading.Thread(target=start_health_server, daemon=True).start()
+        logger.info(f"Health check server started on port {os.getenv('PORT')}")
+
     # Ensure event loop exists for Python 3.14+
     try:
         loop = asyncio.get_event_loop()
