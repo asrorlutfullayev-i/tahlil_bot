@@ -129,8 +129,9 @@ class MentorAI:
 
     async def get_daily_feedback(self, activities: str, learnings: str, user_name: str = '') -> str:
         """Get mentor feedback on today's activities and learnings."""
+        display_name = user_name if user_name else 'do\'stim'
         prompt = f"""
-Foydalanuvchi: {user_name or 'do\'stim'}
+Foydalanuvchi: {display_name}
 
 📋 Bugun qilgan ishlari:
 {activities}
